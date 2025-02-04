@@ -26,11 +26,6 @@ const UserSchema = new mongoose.Schema(
     profileImage: {
       type: String,
     },
-    verified: {
-      type: Boolean,
-      default: false,
-      required: true,
-    },
   },
   { timestamps: true }
 );

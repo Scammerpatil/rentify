@@ -10,7 +10,6 @@ function RegistrationForm() {
     email: "",
     profilePhoto: "",
     password: "",
-    role: "",
     address: "",
     phoneNumber: "",
   });
@@ -24,22 +23,16 @@ function RegistrationForm() {
 
   const validate = () => {
     const newErrors = {};
-
-    // Validate Full Name
     if (!formData.name.trim()) {
       newErrors.name = "Full Name is required.";
     } else if (!/^[a-zA-Z\s]+$/.test(formData.name)) {
       newErrors.name = "Full Name can only contain letters and spaces.";
     }
-
-    // Validate Email
     if (!formData.email.trim()) {
       newErrors.email = "Email is required.";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "Enter a valid email address.";
     }
-
-    // Validate Password
     if (!formData.password.trim()) {
       newErrors.password = "Password is required.";
     } else if (formData.password.length < 6) {
@@ -52,18 +45,10 @@ function RegistrationForm() {
       newErrors.password =
         "Password must contain at least one letter, one number, and one special character.";
     }
-
-    // Validate Role
-    if (!formData.role) {
-      newErrors.role = "Please select a role.";
-    }
-
-    // Validate Address
     if (!formData.address.trim()) {
       newErrors.address = "Address is required.";
     }
 
-    // Validate Phone Number
     if (!formData.phoneNumber.trim()) {
       newErrors.phoneNumber = "Phone Number is required.";
     } else if (!/^\+?\d{10,15}$/.test(formData.phoneNumber)) {
@@ -118,7 +103,7 @@ function RegistrationForm() {
 
     try {
       setLoading(true);
-      const formURL = ""; //remaining to add the url
+      const formURL = "";
       await axios.post(formURL, formData);
       toast.success("Successfully signed up!");
       setFormData({
@@ -126,7 +111,6 @@ function RegistrationForm() {
         email: "",
         profilePhoto: "",
         password: "",
-        role: "",
         address: "",
         phoneNumber: "",
       });
@@ -140,8 +124,8 @@ function RegistrationForm() {
   return (
     <>
       <Header />
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md mx-auto mt-10 ">
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+      <div className="bg-base-100 p-8 rounded-lg shadow-md w-full max-w-md mx-auto mt-10 border border-base-200">
+        <h2 className="text-2xl font-bold mb-6 text-center text-base-content">
           Registration Form
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -149,7 +133,7 @@ function RegistrationForm() {
           <div className="form-control">
             <label
               htmlFor="name"
-              className="label text-sm font-medium text-gray-700"
+              className="label text-sm font-medium text-base-content"
             >
               <span className="label-text">Full Name</span>
             </label>

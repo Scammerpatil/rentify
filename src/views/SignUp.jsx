@@ -1,143 +1,288 @@
-import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import React, { useState } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
 import Header from "../components/Header";
 
-export default function SignUp() {
-  const [form, setForm] = useState({
+function RegistrationForm() {
+  const [formData, setFormData] = useState({
     name: "",
     email: "",
+    profilePhoto: "",
     password: "",
-    phone: "",
     address: "",
-    profileImage: "",
-    verified: false,
+    phoneNumber: "",
   });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({ ...prevState, [name]: value }));
+  };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
+  const validate = () => {
+    const newErrors = {};
+    if (!formData.name.trim()) {
+      newErrors.name = "Full Name is required.";
+    } else if (!/^[a-zA-Z\s]+$/.test(formData.name)) {
+      newErrors.name = "Full Name can only contain letters and spaces.";
+    }
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Enter a valid email address.";
+    }
+    if (!formData.password.trim()) {
+      newErrors.password = "Password is required.";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters long.";
+    } else if (
+      !/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/.test(
+        formData.password
+      )
+    ) {
+      newErrors.password =
+        "Password must contain at least one letter, one number, and one special character.";
+    }
+    if (!formData.address.trim()) {
+      newErrors.address = "Address is required.";
+    }
+
+    if (!formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = "Phone Number is required.";
+    } else if (!/^\+?\d{10,15}$/.test(formData.phoneNumber)) {
+      newErrors.phoneNumber = "Enter a valid phone number.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleUploadImage = async (e) => {
     e.preventDefault();
+    const image = e.target.files[0];
+    console.log(image);
+    if (image) {
+      const imageData = new FormData();
+      imageData.append("file", image);
+      imageData.append("upload_preset", "practice");
+      imageData.append("cloud_name", "dih4mkdr2");
 
-    console.log("Email:", email);
-    console.log("Password:", password);
+      try {
+        const response = axios.get(
+          "https://api.cloudinary.com/v1_1/dih4mkdr2/image/upload",
+          {
+            method: "POST",
+            body: imageData,
+          }
+        );
+        toast.promise(response, {
+          loading: "Uploading image...",
+          success: (data) => {
+            setFormData((prevState) => ({
+              ...prevState,
+              profilePhoto: data.secure_url,
+            }));
+            console.log(data.secure_url);
+            return "Image uploaded successfully!";
+          },
+          error: "Failed to upload image. Please try again.",
+        });
+      } catch (error) {
+        console.error(error);
+        toast.error("An error occurred during image upload.");
+      }
+    } else {
+      toast.error("Please select an image to upload.");
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+    console.log(formData);
+    try {
+      const formURL = "";
+      await axios.post(formURL, formData);
+      toast.success("Successfully signed up!");
+      setFormData({
+        name: "",
+        email: "",
+        profilePhoto: "",
+        password: "",
+        address: "",
+        phoneNumber: "",
+      });
+    } catch (error) {
+      toast.error("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <>
       <Header />
-      <div className="container mx-auto p-10 w-1/2 flex items-center justify-center mt-10">
-        <h1 className="text-4xl font-bold text-center text-base-content mb-6">
-          Create an Account
-        </h1>
-        <form
-          onSubmit={handleSubmit}
-          className="bg-base-200 p-8 rounded-lg shadow-lg space-y-2"
-        >
-          {/* Name Input */}
-          <label className="form-control w-full max-w-md">
-            <div className="label">
-              <span className="block text-lg font-semibold">Name</span>
-            </div>
+      <div className="bg-base-300 p-8 rounded-lg shadow-md w-full max-w-md mx-auto mt-10 border border-base-content">
+        <h2 className="text-2xl font-bold mb-6 text-center text-base-content">
+          Registration Form
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Full Name */}
+          <div className="form-control">
+            <label
+              htmlFor="name"
+              className="label text-sm font-medium text-base-content"
+            >
+              <span className="label-text">Full Name</span>
+            </label>
             <input
               type="text"
-              placeholder="Enter your name"
-              className="input input-bordered w-full max-w-md"
-              required
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className={`input input-bordered w-full ${
+                errors.name ? "input-error" : ""
+              }`}
             />
-          </label>
+            {errors.name && (
+              <p className="text-red-600 text-sm">{errors.name}</p>
+            )}
+          </div>
 
-          {/* Email Input */}
-          <label className="form-control w-full max-w-md">
-            <div className="label">
-              <span className="block text-lg font-semibold ">Email</span>
-            </div>
+          {/* Email */}
+          <div className="form-control">
+            <label
+              htmlFor="email"
+              className="label text-sm font-medium text-gray-700"
+            >
+              <span className="label-text">Email</span>
+            </label>
             <input
               type="email"
-              placeholder="Enter your email"
-              className="input input-bordered w-full max-w-md"
-              required
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className={`input input-bordered w-full ${
+                errors.email ? "input-error" : ""
+              }`}
             />
-          </label>
+            {errors.email && (
+              <p className="text-red-600 text-sm">{errors.email}</p>
+            )}
+          </div>
 
-          {/* Phone */}
-          <label className="form-control w-full max-w-md">
-            <div className="label">
-              <span className="block text-lg font-semibold ">Phone</span>
-            </div>
-            <input
-              type="text"
-              placeholder="Enter your phone number"
-              className="input input-bordered w-full max-w-md"
-              required
-              value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
-            />
-          </label>
-
-          {/* Address */}
-          <label className="form-control w-full max-w-md">
-            <div className="label">
-              <span className="block text-lg font-semibold ">Address</span>
-            </div>
-            <input
-              type="text"
-              placeholder="Enter your address"
-              className="input input-bordered w-full max-w-md"
-              required
-              value={form.address}
-              onChange={(e) => setForm({ ...form, address: e.target.value })}
-            />
-          </label>
-          {/* profile Image */}
-          <label className="form-control w-full max-w-md">
-            <div className="label">
-              <span className="block text-lg font-semibold ">
-                Profile Image
-              </span>
-            </div>
+          {/* Profile photo */}
+          <div className="form-control">
+            <label
+              htmlFor="profilePhoto"
+              className="label text-sm font-medium text-gray-700"
+            >
+              <span className="label-text">Profile Photo</span>
+            </label>
             <input
               type="file"
-              class="file-input file-input-bordered w-full max-w-md"
+              id="profilePhoto"
+              name="profilePhoto"
+              accept="image/*"
+              onChange={handleUploadImage}
+              className="file-input file-input-bordered file-input-primary w-full"
             />
-          </label>
+          </div>
 
-          {/* Password Input */}
-          <label className="form-control w-full max-w-md">
-            <div className="label">
-              <span className="block text-lg font-semibold ">Password</span>
-            </div>
+          {/* Phone Number */}
+          <div className="form-control">
+            <label
+              htmlFor="phoneNumber"
+              className="label text-sm font-medium text-gray-700"
+            >
+              <span className="label-text">Phone Number</span>
+            </label>
+            <input
+              type="number"
+              id="phoneNumber"
+              name="phoneNumber"
+              value={formData.phoneNumber}
+              onChange={handleChange}
+              className={`input input-bordered w-full ${
+                errors.phoneNumber ? "input-error" : ""
+              }`}
+            />
+            {errors.phoneNumber && (
+              <p className="text-red-600 text-sm">{errors.phoneNumber}</p>
+            )}
+          </div>
+
+          {/* Address */}
+          <div className="form-control">
+            <label
+              htmlFor="address"
+              className="label text-sm font-medium text-gray-700"
+            >
+              <span className="label-text">Address</span>
+            </label>
+            <input
+              type="text"
+              id="address"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              className={`input input-bordered w-full ${
+                errors.address ? "input-error" : ""
+              }`}
+            />
+            {errors.address && (
+              <p className="text-red-600 text-sm">{errors.address}</p>
+            )}
+          </div>
+
+          {/* Password */}
+          <div className="form-control">
+            <label
+              htmlFor="password"
+              className="label text-sm font-medium text-gray-700"
+            >
+              <span className="label-text">Password</span>
+            </label>
             <input
               type="password"
-              placeholder="Enter your password"
-              className="input input-bordered w-full max-w-md"
-              required
-              value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className={`input input-bordered w-full ${
+                errors.password ? "input-error" : ""
+              }`}
             />
-          </label>
-
-          {/* Forgot Password and Sign Up Links */}
-          <div className="text-center mt-4">
-            <p className="text-sm text-gray-600">
-              <a href="#" className="text-primary hover:underline">
-                Forgot Password?
-              </a>
-            </p>
-            <NavLink to="/register">
-              <p className="text-sm text-gray-600 mt-2">
-                Don't have an account?{" "}
-                <a className="text-primary hover:underline">Sign Up</a>
-              </p>
-            </NavLink>
+            {errors.password && (
+              <p className="text-red-600 text-sm">{errors.password}</p>
+            )}
           </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className={`btn btn-primary w-full ${loading ? "loading" : ""}`}
+          >
+            {loading ? "Registering..." : "Register"}
+          </button>
+
+          <span className="text-blue-500 hover:text-blue-700 font-normal transition duration-300 flex flex-col items-center justify-center">
+            <p className="text-sm">
+              <Link to="/login">Already have an account? Login</Link>
+            </p>
+          </span>
         </form>
       </div>
     </>
   );
 }
+
+export default RegistrationForm;

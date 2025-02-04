@@ -1,36 +1,31 @@
-import { Star } from "lucide-react";
+// import { Star } from "lucide-react";
 import Header from "../components/Header";
-// Import images
-import switchImage from "../Images/switch.png";
-import XboxImgae from "../Images/Xbox.png";
-import ps5Image from "../Images/ps5.png";
-import laptopImage from "../Images/laptop.png";
 import Hero from "../components/Home/Hero";
 import Categories from "../components/Home/Categories";
 
 export default function Home() {
-  const bestDeals = [
-    {
-      name: "Xbox Series X",
-      image: XboxImgae,
-      price: "$45/month",
-    },
-    {
-      name: "PlayStation 5",
-      image: ps5Image,
-      price: "$50/month",
-    },
-    {
-      name: "Gaming Laptop",
-      image: laptopImage,
-      price: "$70/month",
-    },
-    {
-      name: "Nintendo Switch",
-      image: switchImage,
-      price: "$35/month",
-    },
-  ];
+  // const bestDeals = [
+  //   {
+  //     name: "Xbox Series X",
+  //     image: XboxImgae,
+  //     price: "$45/month",
+  //   },
+  //   {
+  //     name: "PlayStation 5",
+  //     image: ps5Image,
+  //     price: "$50/month",
+  //   },
+  //   {
+  //     name: "Gaming Laptop",
+  //     image: laptopImage,
+  //     price: "$70/month",
+  //   },
+  //   {
+  //     name: "Nintendo Switch",
+  //     image: switchImage,
+  //     price: "$35/month",
+  //   },
+  // ];
 
   return (
     <>
@@ -40,7 +35,7 @@ export default function Home() {
         <h2 className="text-5xl font-bold my-8 text-center">Best Deals</h2>
         <div className="container mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {bestDeals.map((item, index) => (
+            {/* {bestDeals.map((item, index) => (
               <div
                 key={index}
                 className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300"
@@ -74,7 +69,7 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-            ))}
+            ))} */}
           </div>
         </div>
       </section>
