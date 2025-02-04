@@ -20,11 +20,6 @@ const UserSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    role: {
-      type: String,
-      enum: ["renter", "borrower", "admin"],
-      required: true,
-    },
     address: {
       type: String,
     },

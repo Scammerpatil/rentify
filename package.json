@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@tabler/icons-react": "^3.29.0",
     "axios": "^1.7.9",
     "cra-template": "1.2.0",
     "daisyui": "^4.12.23",
@@ -12,7 +13,8 @@
     "react-hot-toast": "^2.5.1",
     "react-router-dom": "^7.1.5",
     "react-scripts": "5.0.1",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "typewriter-effect": "^2.21.0"
   },
   "scripts": {
     "start": "react-scripts start",
