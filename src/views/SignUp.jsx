@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 
 function RegistrationForm() {
@@ -15,6 +15,7 @@ function RegistrationForm() {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const router = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -62,33 +63,27 @@ function RegistrationForm() {
   const handleUploadImage = async (e) => {
     e.preventDefault();
     const image = e.target.files[0];
-    console.log(image);
     if (image) {
       const imageData = new FormData();
       imageData.append("file", image);
-      imageData.append("upload_preset", "practice");
-      imageData.append("cloud_name", "dih4mkdr2");
-
+      imageData.append("upload_preset", "Rentify");
+      imageData.append("cloud_name", "dkoxvg4cc");
+      // toast.loading("Uploading image...");
       try {
-        const response = axios.get(
-          "https://api.cloudinary.com/v1_1/dih4mkdr2/image/upload",
-          {
-            method: "POST",
-            body: imageData,
-          }
-        );
-        toast.promise(response, {
-          loading: "Uploading image...",
-          success: (data) => {
+        fetch("https://api.cloudinary.com/v1_1/dkoxvg4cc/image/upload", {
+          method: "post",
+          body: imageData,
+        })
+          .then((resp) => resp.json())
+          .then((data) => {
+            console.log(data);
             setFormData((prevState) => ({
               ...prevState,
-              profilePhoto: data.secure_url,
+              profilePhoto: data.url,
             }));
-            console.log(data.secure_url);
-            return "Image uploaded successfully!";
-          },
-          error: "Failed to upload image. Please try again.",
-        });
+            toast.success("Image uploaded successfully.");
+          });
+        // toast.dismiss("Uploading image...");
       } catch (error) {
         console.error(error);
         toast.error("An error occurred during image upload.");
@@ -106,21 +101,22 @@ function RegistrationForm() {
     }
     console.log(formData);
     try {
-      const formURL = "";
-      await axios.post(formURL, formData);
-      toast.success("Successfully signed up!");
-      setFormData({
-        name: "",
-        email: "",
-        profilePhoto: "",
-        password: "",
-        address: "",
-        phoneNumber: "",
+      const formURL = "http://localhost:5000/api/auth/signup";
+      const response = axios.post(formURL, formData);
+      toast.promise(response, {
+        loading: "Registering...",
+        success: () => {
+          router("/login");
+          return "Registration successful. Please login.";
+        },
+        error: (err) => {
+          console.log(err);
+          return err.response.data.message;
+        },
       });
     } catch (error) {
-      toast.error("An error occurred. Please try again.");
-    } finally {
-      setLoading(false);
+      console.log(error);
+      toast.error(error.message);
     }
   };
 
@@ -129,7 +125,7 @@ function RegistrationForm() {
       <Header />
       <div className="bg-base-300 p-8 rounded-lg shadow-md w-full max-w-md mx-auto mt-10 border border-base-content">
         <h2 className="text-2xl font-bold mb-6 text-center text-base-content">
-          Registration Form
+          Hello there! Welcome to Rentify
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Full Name */}
@@ -274,9 +270,12 @@ function RegistrationForm() {
             {loading ? "Registering..." : "Register"}
           </button>
 
-          <span className="text-blue-500 hover:text-blue-700 font-normal transition duration-300 flex flex-col items-center justify-center">
+          <span className="font-normal transition duration-300 flex flex-col items-center justify-center">
             <p className="text-sm">
-              <Link to="/login">Already have an account? Login</Link>
+              Already have an account?
+              <Link to="/login" className="text-primary">
+                Login
+              </Link>
             </p>
           </span>
         </form>

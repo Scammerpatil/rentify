@@ -40,7 +40,10 @@ const Categories = () => {
               className="card bg-base-100 hover:shadow-xl transition-shadow cursor-pointer"
             >
               <Link
-                to={`/${category.name.toLowerCase().split(" ").join("-")}`}
+                to={`/category/${category.name
+                  .toLowerCase()
+                  .split(" ")
+                  .join("-")}`}
                 className="card-body items-center text-center"
               >
                 <img

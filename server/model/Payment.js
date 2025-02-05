@@ -7,11 +7,6 @@ const PaymentSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    booking: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Booking",
-      required: true,
-    },
     amount: {
       type: Number,
       required: true,
@@ -26,13 +21,9 @@ const PaymentSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    status: {
-      type: String,
-      enum: ["success", "failed", "pending"],
-      default: "pending",
-    },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Payment", PaymentSchema);
+const Payment = mongoose.model("Payment", PaymentSchema);
+export default Payment;

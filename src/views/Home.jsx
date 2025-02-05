@@ -2,31 +2,19 @@
 import Header from "../components/Header";
 import Hero from "../components/Home/Hero";
 import Categories from "../components/Home/Categories";
+import { useEffect, useState } from "react";
+import { IconCalendar, IconLocation } from "@tabler/icons-react";
+import { Link } from "react-router-dom";
 
 export default function Home() {
-  // const bestDeals = [
-  //   {
-  //     name: "Xbox Series X",
-  //     image: XboxImgae,
-  //     price: "$45/month",
-  //   },
-  //   {
-  //     name: "PlayStation 5",
-  //     image: ps5Image,
-  //     price: "$50/month",
-  //   },
-  //   {
-  //     name: "Gaming Laptop",
-  //     image: laptopImage,
-  //     price: "$70/month",
-  //   },
-  //   {
-  //     name: "Nintendo Switch",
-  //     image: switchImage,
-  //     price: "$35/month",
-  //   },
-  // ];
+  const [listings, setListings] = useState([]);
 
+  useEffect(() => {
+    fetch("http://localhost:5000/api/product/")
+      .then((res) => res.json())
+      .then((data) => setListings(data))
+      .catch((err) => console.error("Error fetching listings:", err));
+  }, []);
   return (
     <>
       <Header />
@@ -34,42 +22,95 @@ export default function Home() {
       <section className="py-12">
         <h2 className="text-5xl font-bold my-8 text-center">Best Deals</h2>
         <div className="container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* {bestDeals.map((item, index) => (
-              <div
-                key={index}
-                className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300"
-              >
-                <figure>
-                  <img
-                    src={item.image} // Use the image URL from the bestDeals array
-                    alt={item.name} // Use the product name for the alt text
-                    width={200}
-                    height={200}
-                    className="w-full object-cover h-48 rounded-t-lg"
-                  />
-                </figure>
-                <div className="card-body p-4">
-                  <h3 className="card-title text-lg font-semibold">
-                    {item.name}
-                    <div className="badge badge-secondary ml-2">NEW</div>
-                  </h3>
-                  <div className="flex items-center space-x-1 mt-2">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="h-4 w-4 text-yellow-400"
-                        fill="currentColor"
-                      />
-                    ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-10">
+            {listings.length > 0 ? (
+              listings.map((item) => (
+                <div
+                  key={item._id}
+                  className="card bg-base-300 shadow-lg hover:shadow-2xl transition p-4 rounded-xl border border-base-300"
+                >
+                  {/* Product Image */}
+                  <div className="relative h-48 w-full">
+                    <img
+                      src={item.images || "/Images/placeholder.png"}
+                      alt={item.title}
+                      className="h-full w-full object-cover rounded-md"
+                    />
+                    <span className="absolute top-2 left-2 bg-primary text-base-content text-xs px-2 py-1 rounded">
+                      {item.category}
+                    </span>
                   </div>
-                  <p className="text-lg font-semibold mt-2">{item.price}</p>
-                  <div className="card-actions justify-end mt-4">
-                    <button className="btn btn-primary w-full">Rent Now</button>
+
+                  {/* Product Details */}
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold text-primary">
+                      {item.title}
+                    </h3>
+                    <p className="text-sm text-base-content/80 ">
+                      {item.description.slice(0, 60)}...
+                    </p>
+
+                    <div className="flex items-center justify-between mt-2">
+                      <p className="text-xl font-bold text-secondary">
+                        &#8377; {item.pricePerDay}/day
+                      </p>
+                      <span className="badge badge-success">Available</span>
+                    </div>
+
+                    {/* Location & Availability */}
+                    <div className="flex items-center justify-between mt-3 text-base-content">
+                      <div className="flex items-center space-x-1">
+                        <IconLocation size={20} />
+                        <span>{item.location.slice(0, 10)}...</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <IconCalendar size={20} />
+                        <span>Available</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Owner Info */}
+                  <div className="p-3 bg-base-200 rounded-md">
+                    <Link
+                      to={`/details/${item.owner?._id}`}
+                      className="flex items-center space-x-3"
+                    >
+                      <img
+                        src={
+                          item.owner?.profileImage || "/Images/placeholder.png"
+                        }
+                        alt="Owner"
+                        className="avatar h-10 w-10 rounded-full border-2 border-primary object-cover"
+                      />
+                      <span className="font-medium text-base-content">
+                        {item.owner?.name}
+                      </span>
+                    </Link>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="p-3 flex justify-between">
+                    <Link
+                      to={`/login`}
+                      className="btn btn-primary w-1/2 mr-2 text-base"
+                    >
+                      Rent
+                    </Link>
+                    <Link
+                      to={`/${item._id}`}
+                      className="btn btn-secondary w-1/2 text-base"
+                    >
+                      Details
+                    </Link>
                   </div>
                 </div>
-              </div>
-            ))} */}
+              ))
+            ) : (
+              <p className="text-center text-base-content col-span-full">
+                No listings available.
+              </p>
+            )}
           </div>
         </div>
       </section>
