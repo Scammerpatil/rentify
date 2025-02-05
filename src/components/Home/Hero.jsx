@@ -1,4 +1,5 @@
 import TypeWriter from "../Typewriter";
+
 const Hero = () => {
   const text = [
     "Rent Anything, Anytime, Anywhere...",
@@ -12,9 +13,17 @@ const Hero = () => {
     "Experience More, Own Less...",
     "Rentify - Making Renting Effortless...",
   ];
+
   return (
-    <div className="hero h-[calc(100vh-5rem)] bg-base-200">
-      <div className="hero-content flex-col lg:flex-row-reverse px-10">
+    <div
+      className="hero h-[calc(100vh-5rem)] bg-center bg-no-repeat lg:bg-cover"
+      style={{
+        backgroundImage: "url('/images/hero-bg.jpg')",
+        backgroundPosition: "center", // Keeps the image centered
+      }}
+    >
+      {/* Content Section for Small Screens (Mobile & Below Tablet) */}
+      <div className="lg:hidden hero-content flex-col px-10">
         <div className="mx-auto max-w-[800px] text-center" data-wow-delay=".2s">
           <h1 className="mb-5 text-3xl font-bold leading-tight text-base-content sm:text-4xl sm:leading-tight md:text-5xl md:leading-tight">
             <TypeWriter text={text} />
@@ -51,6 +60,11 @@ const Hero = () => {
             convenience like never before! 🚀🔑
           </p>
         </div>
+      </div>
+
+      {/* For Large Screens: Show Background Image */}
+      <div className="hidden lg:block hero-content flex-col px-10">
+        {/* You can add extra content here if needed, but no text should be visible */}
       </div>
     </div>
   );

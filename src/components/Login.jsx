@@ -18,13 +18,13 @@ export default function Login() {
     <>
       <Header />
       <div className="container mx-auto p-10 max-w-md mt-10">
-        <h1 className="text-4xl font-bold text-center text-gray-800 mb-6">
+        <h1 className="text-4xl font-bold text-center text-base-content mb-6">
           Login User
         </h1>
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white p-8 rounded-lg shadow-lg space-y-6"
+          className="bg-base-100 p-8 rounded-lg shadow-lg space-y-6"
         >
           {/* Email or Phone Input */}
           <div>

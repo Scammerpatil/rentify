@@ -8,7 +8,7 @@ const Categories = () => {
     { name: "Car", image: "/Images/car.png" },
     { name: "Cameras", image: "/Images/Camera.png" },
     { name: "Audio", image: "/Images/headphone.png" },
-    { name: "Accessories", image: "/Images/TV.png" },
+    { name: "Television", image: "/Images/TV.png" },
     { name: "Bicycles", image: "/Images/Bicycle.png" },
     { name: "Furniture", image: "/Images/Furniture.png" },
     { name: "Camping Gear", image: "/Images/Camping.png" },

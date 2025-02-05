@@ -279,7 +279,7 @@ function RegistrationForm() {
               name="address"
               value={formData.address}
               onChange={handleChange}
-              className={`input input-bordered w-full ${
+              className={`input input-bordered w-full  ${
                 errors.address ? "input-error" : ""
               }`}
             />
