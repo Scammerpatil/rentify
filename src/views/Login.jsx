@@ -42,7 +42,6 @@ export default function Login() {
           Hey there! Welcome back
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email */}
           <div className="form-control">
             <label
               htmlFor="email"

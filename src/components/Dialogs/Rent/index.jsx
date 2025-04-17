@@ -14,8 +14,19 @@ const Rent = ({ product }) => {
     paymentMethod: "",
     transactionId: "",
   });
-
-  // ✅ Calculate total price only when startDate or endDate changes
+  function loadScript(src) {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = () => {
+        resolve(true);
+      };
+      script.onerror = () => {
+        resolve(false);
+      };
+      document.body.appendChild(script);
+    });
+  }
   useEffect(() => {
     if (formData.startDate && formData.endDate) {
       const startDate = new Date(formData.startDate);
@@ -32,28 +43,61 @@ const Rent = ({ product }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const res = await loadScript(
+      "https://checkout.razorpay.com/v1/checkout.js"
+    );
+    console.log("razorpay", res);
+    if (!res) {
+      toast.error("Razorpay SDK failed to load. Are you online?");
+      return;
+    }
     try {
       const response = axios.post(
         "http://localhost:5000/api/booking/addBooking",
-        formData // ✅ Corrected: Send formData directly
+        formData
       );
 
       document.getElementById("payment").close();
       document.getElementById("rentProduct").close();
       toast.promise(response, {
         loading: "Renting product...",
-        success: "Product rented successfully!",
-        error: (err) => err.response?.data?.message || "Error renting product",
+        success: (data) => {
+          const options = {
+            key: "rzp_test_cXJvckaWoN0JQx",
+            amount: data.data.amount,
+            currency: "INR",
+            name: "Rentify",
+            description: "Test Transaction",
+            image: "/bg.png",
+            order_id: data.data.orderId,
+            handler: toast.success("Payment successful!"),
+            prefill: {
+              name: user?.name,
+              email: user?.email,
+              contact: user?.contact,
+            },
+          };
+          const paymentObject = new window.Razorpay(options);
+          paymentObject.on("payment.failed", function (response) {
+            alert(response.error.description);
+          });
+          paymentObject.open();
+          return "Product rented successfully!";
+        },
+        error: (err) => {
+          document.getElementById("rentProduct").close();
+          return err.response.data.message || "Error renting product";
+        },
       });
     } catch (error) {
       console.error("Error renting product:", error);
       toast.error("Error renting product");
+      document.getElementById("rentProduct").close();
     }
   };
 
   return (
     <>
-      {/* Rent Modal */}
       <dialog id="rentProduct" className="modal">
         <div className="modal-box w-11/12 max-w-5xl bg-base-100 shadow-lg rounded-xl">
           <h3 className="text-2xl font-bold text-center text-primary">
@@ -65,6 +109,7 @@ const Rent = ({ product }) => {
               type="date"
               name="startDate"
               className="input input-bordered w-full"
+              min={new Date().toISOString().split("T")[0]}
               value={formData.startDate}
               onChange={(e) =>
                 setFormData({ ...formData, startDate: e.target.value })
@@ -77,6 +122,7 @@ const Rent = ({ product }) => {
               type="date"
               name="endDate"
               className="input input-bordered w-full"
+              min={formData.startDate || new Date().toISOString().split("T")[0]}
               value={formData.endDate}
               onChange={(e) =>
                 setFormData({ ...formData, endDate: e.target.value })
@@ -97,66 +143,9 @@ const Rent = ({ product }) => {
               <button
                 className="btn btn-primary px-6"
                 type="button"
-                onClick={() => document.getElementById("payment").showModal()}
-              >
-                Rent Now
-              </button>
-            </div>
-          </form>
-        </div>
-      </dialog>
-
-      {/* Payment Modal */}
-      <dialog id="payment" className="modal">
-        <div className="modal-box w-11/12 max-w-5xl bg-base-100 shadow-lg rounded-xl">
-          <h3 className="text-2xl font-bold text-center text-primary">
-            💳 Pay The Amount
-          </h3>
-          <form className="space-y-4 p-4">
-            {/* Total Price Display */}
-            <input
-              type="text"
-              className="input input-bordered w-full"
-              value={`Total Price: ₹${formData.totalPrice}`}
-              readOnly
-            />
-
-            {/* Payment Method Selection */}
-            <select
-              className="input input-bordered w-full"
-              onChange={(e) =>
-                setFormData({ ...formData, paymentMethod: e.target.value })
-              }
-              required
-            >
-              <option value="">Select Payment Method</option>
-              <option value="credit_card">Credit Card</option>
-              <option value="debit_card">Debit Card</option>
-              <option value="paypal">PayPal</option>
-              <option value="upi">UPI</option>
-            </select>
-
-            {/* Transaction ID */}
-            <input
-              type="text"
-              name="transactionId"
-              placeholder="Transaction ID"
-              className="input input-bordered w-full"
-              value={formData.transactionId}
-              onChange={(e) =>
-                setFormData({ ...formData, transactionId: e.target.value })
-              }
-              required
-            />
-
-            {/* Action Buttons */}
-            <div className="modal-action flex justify-between">
-              <button
-                className="btn btn-primary px-6"
-                type="submit"
                 onClick={handleSubmit}
               >
-                Pay Now
+                Rent Now
               </button>
             </div>
           </form>

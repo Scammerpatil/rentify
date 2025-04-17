@@ -3,10 +3,15 @@ import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import User from "../model/User.js";
 import Product from "../model/Product.js";
+import jwt from "jsonwebtoken";
+import cookieParser from "cookie-parser";
+import Booking from "../model/Booking.js";
+import Report from "../model/Report.js";
 const app = express();
 
 dotenv.config();
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 // Sign up route
 app.get("/:id", async (req, res) => {
@@ -21,6 +26,89 @@ app.get("/:id", async (req, res) => {
     }
   } catch (error) {
     console.log(error);
+  }
+});
+
+app.get("/dashboard/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId);
+    const listings = await Product.find({ owner: userId });
+    const bookings = await Booking.find({ renter: userId }).populate("listing");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ user, listings, bookings });
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+});
+
+app.post("/report", async (req, res) => {
+  try {
+    const { bookingId, reporter, issue, reason } = req.body;
+    const booking = await Booking.findById(bookingId);
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+    const product = await Product.findById(booking.listing);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    const report = new Report({
+      ownerId: product.owner,
+      bookingId,
+      reporter,
+      productId: product._id,
+      reason,
+      description: issue,
+    });
+    await report.save();
+    res.status(201).json({ message: "Report submitted successfully" });
+  } catch (error) {
+    console.error("Error submitting report:", error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+});
+
+app.get("/reports/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const reports = await Report.find({
+      $or: [{ ownerId: userId }, { reporter: userId }],
+    })
+      .populate("reporter", "name profileImage")
+      .populate("productId", "title images")
+      .populate("ownerId", "name profileImage")
+      .populate("bookingId")
+      .exec();
+    if (!reports) {
+      return res.status(404).json({ message: "No reports found" });
+    }
+    res.status(200).json(reports);
+  } catch (error) {
+    console.error("Error fetching reports:", error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+});
+
+app.put("/report/feedback", async (req, res) => {
+  try {
+    const { reportId, feedback } = req.body;
+    const report = await Report.findById(reportId);
+    if (!report) {
+      return res.status(404).json({ message: "Report not found" });
+    }
+    report.feedback = feedback;
+    report.status = "Resolved";
+    await report.save();
+    res.status(200).json({ message: "Feedback submitted successfully" });
+  } catch (error) {
+    console.error("Error submitting feedback:", error);
+    res.status(500).json({ message: "Something went wrong" });
   }
 });
 

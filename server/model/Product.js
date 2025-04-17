@@ -54,7 +54,7 @@ const ProductSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    location: {
+    address: {
       type: String,
       required: true,
     },
@@ -69,6 +69,28 @@ const ProductSchema = new mongoose.Schema(
         ref: "Booking",
       },
     ],
+    location: {
+      type: {
+        type: String,
+        enum: ["Point"],
+        default: "Point",
+      },
+      coordinates: {
+        type: [Number],
+        required: true,
+      },
+    },
+    reviews: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Review",
+      },
+    ],
+    certificate: {
+      warrantyCard: { type: String },
+      insuranceCertificate: { type: String },
+      realTimeImages: { type: String },
+    },
   },
   { timestamps: true }
 );

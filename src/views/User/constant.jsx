@@ -27,11 +27,6 @@ export const SIDENAV_ITEMS = [
     path: "/user/my-rentals",
     icon: <IconPackage width="24" height="24" />,
   },
-  // {
-  //   title: "Cart",
-  //   path: "/user/cart",
-  //   icon: <IconShoppingCart width="24" height="24" />,
-  // },
   {
     title: "My Orders",
     path: "/user/orders",
@@ -43,13 +38,8 @@ export const SIDENAV_ITEMS = [
     icon: <IconUser width="24" height="24" />,
   },
   {
-    title: "Payments & Billing",
-    path: "/user/payments",
-    icon: <IconCreditCard width="24" height="24" />,
-  },
-  {
-    title: "Support",
-    path: "/user/support",
-    icon: <IconHelpCircle width="24" height="24" />,
+    title: "Reports",
+    path: "/user/reports",
+    icon: <IconClipboardCheck width="24" height="24" />,
   },
 ];

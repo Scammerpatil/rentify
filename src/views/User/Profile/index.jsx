@@ -3,20 +3,20 @@ import Layout from "../Layout";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { IconCalendar, IconLocation } from "@tabler/icons-react";
+import { useUser } from "../../../context/UserContext";
 
-const User = () => {
-  const { userId } = useParams();
+const Profile = () => {
   return (
     <Layout>
-      <Component userid={userId} />
+      <Component />
     </Layout>
   );
 };
 
-export default User;
+export default Profile;
 
-const Component = ({ userid }) => {
-  const [user, setUser] = useState(null);
+const Component = () => {
+  const { user } = useUser();
   const [listings, setListings] = useState([]);
 
   useEffect(() => {
@@ -26,9 +26,8 @@ const Component = ({ userid }) => {
   const getUser = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/user/${userid}`
+        `http://localhost:5000/api/user/${user?._id}`
       );
-      setUser(response.data.user);
       setListings(response.data.listing);
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -102,22 +101,6 @@ const Component = ({ userid }) => {
                     <span>Available</span>
                   </div>
                 </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="p-3 flex justify-between">
-                <Link
-                  to={`/product/${item._id}`}
-                  className="btn btn-primary w-1/2 mr-2 text-base"
-                >
-                  Rent
-                </Link>
-                <Link
-                  to={`/product/${item._id}`}
-                  className="btn btn-secondary w-1/2 text-base"
-                >
-                  Details
-                </Link>
               </div>
             </div>
           ))

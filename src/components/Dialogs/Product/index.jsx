@@ -1,18 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { useUser } from "../../../context/UserContext";
 
-const Product = ({ onClose }) => {
+const Product = ({ onClose, product }) => {
   const { user } = useUser();
+  const [geoLocation, setGeoLocation] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     category: "",
     images: "",
     pricePerDay: "",
-    location: "",
+    availability: true,
+    address: "",
+    warrantyCard: "",
+    insuranceCertificate: "",
+    realTimeImages: "",
   });
+
+  const isEditMode = Boolean(product?._id);
 
   const categories = [
     "car",
@@ -42,86 +49,123 @@ const Product = ({ onClose }) => {
     "bicycles",
     "other",
   ];
+  const expensiveCategories = ["car", "bike", "camera", "laptop"];
 
-  const handleUploadImage = async (e) => {
-    e.preventDefault();
-    const image = e.target.files[0];
-    if (image) {
-      const imageData = new FormData();
-      imageData.append("file", image);
-      imageData.append("upload_preset", "Rentify");
-      imageData.append("cloud_name", "dkoxvg4cc");
-      toast.loading("Uploading image...");
-      try {
-        fetch("https://api.cloudinary.com/v1_1/dkoxvg4cc/image/upload", {
-          method: "post",
-          body: imageData,
-        })
-          .then((resp) => resp.json())
-          .then((data) => {
-            console.log(data);
-            setFormData((prevState) => ({
-              ...prevState,
-              images: data.url,
-            }));
-            toast.dismiss();
-            toast.success("Image uploaded successfully.");
-          });
-      } catch (error) {
-        console.error(error);
-        toast.error("An error occurred during image upload.");
-      }
-    } else {
-      toast.error("Please select an image to upload.");
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setGeoLocation([pos.coords.longitude, pos.coords.latitude]),
+        (err) => toast.error("Enable location access for accurate listing")
+      );
     }
-  };
+
+    if (isEditMode) {
+      setFormData({ ...product });
+      setGeoLocation(product.location || null);
+    }
+  }, [product]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleDocumentUpload = async (e, fieldName, folderName) => {
+    if (!formData.title) return toast.error("Enter product title first");
+
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const form = new FormData();
+    form.append("file", file);
+    form.append(
+      "name",
+      `${formData.title
+        .split(" ")
+        .map(((word) => word.toLowerCase()).join("-"))}-${fieldName}`
+    );
+    form.append("folderName", folderName || "productDocuments");
+
+    const res = axios.post(
+      "http://localhost:5000/api/helper/upload-image",
+      form,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+
+    toast.promise(res, {
+      loading: `Uploading ${fieldName}...`,
+      success: (data) => {
+        setFormData((prev) => ({ ...prev, [fieldName]: data.data.filePath }));
+        return `${fieldName} uploaded`;
+      },
+      error: `${fieldName} upload failed`,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (
-      !formData.category ||
-      !formData.description ||
-      !formData.images ||
       !formData.title ||
-      !formData.pricePerDay
+      !formData.description ||
+      !formData.category ||
+      !formData.pricePerDay ||
+      !formData.images
     ) {
-      document.getElementById("addProduct").close();
-      toast.error("All Fields are required");
-      document.getElementById("addProduct").showModal();
+      toast.error("All fields are required");
       return;
     }
+
+    if (!geoLocation) {
+      toast.error("Location not available");
+      return;
+    }
+
+    const payload = {
+      ...formData,
+      user,
+      location: geoLocation,
+    };
+
     try {
-      const response = axios.post(
-        "http://localhost:5000/api/product/addProduct",
-        { formData, user }
-      );
-      document.getElementById("addProduct").close();
-      toast.promise(response, {
-        loading: "Adding Your Product....",
-        success: "Product added Successfully",
-        error: (err) => {
-          console.log(err);
-          toast.dismiss();
-          return `Oops.${err.response.data.message}`;
-        },
+      const req = isEditMode
+        ? axios.put(
+            `http://localhost:5000/api/product/updateProduct/${product._id}`,
+            {
+              formData: payload,
+            }
+          )
+        : axios.post("http://localhost:5000/api/product/addProduct", {
+            formData: payload,
+          });
+
+      toast.promise(req, {
+        loading: isEditMode ? "Updating product..." : "Adding product...",
+        success: isEditMode ? "Product updated!" : "Product added!",
+        error: (err) =>
+          err?.response?.data?.message || "Failed to save product",
       });
+
+      document.getElementById("addProduct").close();
     } catch (error) {
-      console.error("Error adding product:", error);
+      console.error("Product error:", error);
     }
   };
 
   return (
     <dialog id="addProduct" className="modal">
       <div className="modal-box w-11/12 max-w-5xl bg-base-100 shadow-lg rounded-xl">
-        <h3 className="text-2xl font-bold text-center text-primary">
-          🛒 List Your Product
+        <h3 className="text-2xl font-bold text-center text-primary uppercase">
+          {isEditMode ? "✏️ Edit Product" : "🛒 List Your Product"}
         </h3>
-        <form onSubmit={handleSubmit} className="space-y-4 p-4">
-          {/* Title */}
+
+        <form
+          className="space-y-4 p-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+          }}
+        >
           <input
             type="text"
             name="title"
@@ -129,26 +173,21 @@ const Product = ({ onClose }) => {
             className="input input-bordered w-full"
             value={formData.title}
             onChange={handleChange}
-            required
           />
 
-          {/* Description */}
           <textarea
             name="description"
             placeholder="Product Description"
             className="textarea textarea-bordered w-full"
             value={formData.description}
             onChange={handleChange}
-            required
           ></textarea>
 
-          {/* Category Dropdown */}
           <select
             name="category"
             className="select select-bordered w-full"
             value={formData.category}
             onChange={handleChange}
-            required
           >
             <option value="">Select Category</option>
             {categories.map((cat) => (
@@ -158,17 +197,19 @@ const Product = ({ onClose }) => {
             ))}
           </select>
 
-          {/* Image URL */}
           <input
             type="file"
-            id="profilePhoto"
-            name="profilePhoto"
+            id="productImage"
+            name="productImage"
             accept="image/*"
-            onChange={handleUploadImage}
+            onChange={(e) => {
+              e.preventDefault();
+              handleDocumentUpload(e, "images", "productImages");
+            }}
             className="file-input file-input-bordered file-input-primary w-full"
+            disabled={!formData.title}
           />
 
-          {/* Price Per Day */}
           <input
             type="number"
             name="pricePerDay"
@@ -176,27 +217,80 @@ const Product = ({ onClose }) => {
             className="input input-bordered w-full"
             value={formData.pricePerDay}
             onChange={handleChange}
-            required
           />
 
-          {/* Location */}
           <input
             type="text"
-            name="location"
+            name="address"
             placeholder="Location"
             className="input input-bordered w-full"
-            value={formData.location}
+            value={formData.address}
             onChange={handleChange}
-            required
           />
 
-          {/* Action Buttons */}
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              name="availability"
+              className="checkbox checkbox-primary"
+              checked={formData.availability}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  availability: e.target.checked,
+                })
+              }
+            />
+            <label>Available for rent</label>
+          </div>
+
+          {expensiveCategories.includes(formData.category) && (
+            <>
+              <label className="label">Warranty Card</label>
+              <input
+                type="file"
+                accept=".pdf,image/*"
+                onChange={(e) => {
+                  e.preventDefault();
+                  handleDocumentUpload(e, "warrantyCard", "productDocuments");
+                }}
+                className="file-input file-input-bordered w-full"
+              />
+
+              <label className="label">Insurance Certificate</label>
+              <input
+                type="file"
+                accept=".pdf,image/*"
+                onChange={(e) => {
+                  e.preventDefault();
+                  handleDocumentUpload(
+                    e,
+                    "insuranceCertificate",
+                    "productDocuments"
+                  );
+                }}
+                className="file-input file-input-bordered w-full"
+              />
+
+              <label className="label">Real-Time Images (with date)</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  e.preventDefault();
+                  handleDocumentUpload(e, "realTimeImages", "productDocuments");
+                }}
+                className="file-input file-input-bordered w-full"
+              />
+            </>
+          )}
+
           <div className="modal-action flex justify-between">
-            <button type="submit" className="btn btn-primary px-6">
-              Add Listing
+            <button onClick={handleSubmit} className="btn btn-primary px-6">
+              {isEditMode ? "Update Product" : "Add Listing"}
             </button>
             <button type="button" className="btn" onClick={onClose}>
-              Close
+              Cancel
             </button>
           </div>
         </form>

@@ -1,14 +1,11 @@
 import express from "express";
 import dotenv from "dotenv";
-import bodyParser from "body-parser";
 import User from "../model/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-const app = express();
+const app = express.Router();
 
 dotenv.config();
-app.use(bodyParser.json());
-
 // Sign up route
 app.post("/signup", async (req, res) => {
   const { name, email, password, address, phoneNumber, profilePhoto } =
@@ -51,6 +48,7 @@ app.post("/signup", async (req, res) => {
 // Login route
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
+  console.log(email, password);
   try {
     // Find user
     const user = await User.findOne({ email });
@@ -69,7 +67,7 @@ app.post("/login", async (req, res) => {
     };
     // Create token
     const token = jwt.sign(data, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "1d",
     });
     res.cookie("token", token, {
       httpOnly: true,

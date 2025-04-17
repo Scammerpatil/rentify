@@ -44,14 +44,12 @@ const Categories = () => {
                   .toLowerCase()
                   .split(" ")
                   .join("-")}`}
-                className="card-body items-center text-center"
+                className="card-body items-center text-center h-52"
               >
                 <img
                   src={category.image}
                   alt={category.name}
-                  width={74}
-                  height={74}
-                  className="mb-2"
+                  className="mb-2 w-24 h-24 object-contain"
                   onError={(e) => (e.target.src = "/Images/placeholder.png")}
                 />
                 <h3 className="card-title text-sm">{category.name}</h3>

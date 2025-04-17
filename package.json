@@ -8,6 +8,7 @@
     "cra-template": "1.2.0",
     "daisyui": "^4.12.23",
     "lucide-react": "^0.474.0",
+    "razorpay": "^2.9.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.1",

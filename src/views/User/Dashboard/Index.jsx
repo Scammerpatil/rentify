@@ -25,7 +25,7 @@ const Component = () => {
   const fetchDashboardData = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/myRentals/${user._id}`
+        `http://localhost:5000/api/user/dashboard/${user._id}`
       );
       setData(response.data);
     } catch (error) {
@@ -34,8 +34,10 @@ const Component = () => {
   };
 
   return (
-    <div className="px-10 py-8">
-      <h1 className="text-4xl font-bold text-center mb-6">📊 Dashboard</h1>
+    <>
+      <h1 className="text-4xl uppercase font-bold text-center mb-6">
+        📊 Dashboard
+      </h1>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -95,6 +97,6 @@ const Component = () => {
           <p className="text-center text-gray-500">No bookings yet.</p>
         )}
       </div>
-    </div>
+    </>
   );
 };

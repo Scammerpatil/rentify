@@ -14,7 +14,6 @@ function RegistrationForm() {
     phoneNumber: "",
   });
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
   const router = useNavigate();
 
   const handleChange = (e) => {
@@ -60,46 +59,51 @@ function RegistrationForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleUploadImage = async (e) => {
-    e.preventDefault();
-    const image = e.target.files[0];
-    if (image) {
-      const imageData = new FormData();
-      imageData.append("file", image);
-      imageData.append("upload_preset", "Rentify");
-      imageData.append("cloud_name", "dkoxvg4cc");
-      // toast.loading("Uploading image...");
-      try {
-        fetch("https://api.cloudinary.com/v1_1/dkoxvg4cc/image/upload", {
-          method: "post",
-          body: imageData,
-        })
-          .then((resp) => resp.json())
-          .then((data) => {
-            console.log(data);
-            setFormData((prevState) => ({
-              ...prevState,
-              profilePhoto: data.url,
-            }));
-            toast.success("Image uploaded successfully.");
-          });
-        // toast.dismiss("Uploading image...");
-      } catch (error) {
-        console.error(error);
-        toast.error("An error occurred during image upload.");
+  const handleUploadImage = (e) => {
+    if (!formData.name) {
+      toast.error("Name is required for images");
+      return;
+    }
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        alert("File size exceeds 5MB");
+        return;
       }
-    } else {
-      toast.error("Please select an image to upload.");
+
+      const form = new FormData();
+      form.append("file", file);
+      form.append("name", formData.name.split(" ").join("_"));
+      form.append("folderName", "profileImages");
+      const imageResponse = axios.post(
+        "http://localhost:5000/api/helper/upload-image",
+        form,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      toast.promise(imageResponse, {
+        loading: "Uploading Image...",
+        success: (data) => {
+          console.log(data.data);
+          setFormData({
+            ...formData,
+            profilePhoto: data.data.filePath,
+          });
+          return "Image Uploaded Successfully";
+        },
+        error: (err) => `This just happened: ${err}`,
+      });
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     if (!validate()) {
       toast.error("Please fill in all required fields.");
       return;
     }
-    console.log(formData);
     try {
       const formURL = "http://localhost:5000/api/auth/signup";
       const response = axios.post(formURL, formData);
@@ -127,7 +131,7 @@ function RegistrationForm() {
         <h2 className="text-2xl font-bold mb-6 text-center text-base-content">
           Hello there! Welcome to Rentify
         </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-4">
           {/* Full Name */}
           <div className="form-control">
             <label
@@ -178,7 +182,7 @@ function RegistrationForm() {
           <div className="form-control">
             <label
               htmlFor="profilePhoto"
-              className="label text-sm font-medium text-gray-700"
+              className="label text-sm font-medium text-base-content"
             >
               <span className="label-text">Profile Photo</span>
             </label>
@@ -187,7 +191,10 @@ function RegistrationForm() {
               id="profilePhoto"
               name="profilePhoto"
               accept="image/*"
-              onChange={handleUploadImage}
+              onChange={(e) => {
+                handleUploadImage(e);
+              }}
+              disabled={!formData.name}
               className="file-input file-input-bordered file-input-primary w-full"
             />
           </div>
@@ -262,12 +269,8 @@ function RegistrationForm() {
           </div>
 
           {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className={`btn btn-primary w-full ${loading ? "loading" : ""}`}
-          >
-            {loading ? "Registering..." : "Register"}
+          <button className={`btn btn-primary w-full`} onClick={handleSubmit}>
+            Register
           </button>
 
           <span className="font-normal transition duration-300 flex flex-col items-center justify-center">
@@ -278,7 +281,7 @@ function RegistrationForm() {
               </Link>
             </p>
           </span>
-        </form>
+        </div>
       </div>
     </>
   );

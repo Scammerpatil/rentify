@@ -14,6 +14,9 @@ import MyRental from "./views/User/MyRentals/index.jsx";
 import ProductDetails from "./views/ProductDetails/index.jsx";
 import UserDetails from "./views/UserDetatils/index.jsx";
 import Category from "./views/Category/index.jsx";
+import Orders from "./views/User/Orders/index.jsx";
+import Profile from "./views/User/Profile/index.jsx";
+import Reports from "./views/User/Reports/index.jsx";
 
 const App = () => {
   return (
@@ -66,17 +69,14 @@ const RouteContainer = () => {
             element={user ? <MyRental /> : <Login />}
           />
           <Route path="/user/cart" element={user ? <Dashboard /> : <Login />} />
-          <Route
-            path="/user/orders"
-            element={user ? <Dashboard /> : <Login />}
-          />
+          <Route path="/user/orders" element={user ? <Orders /> : <Login />} />
           <Route
             path="/user/profile"
-            element={user ? <Dashboard /> : <Login />}
+            element={user ? <Profile /> : <Login />}
           />
           <Route
-            path="/user/payments"
-            element={user ? <Dashboard /> : <Login />}
+            path="/user/reports"
+            element={user ? <Reports /> : <Login />}
           />
         </Routes>
       </BrowserRouter>
