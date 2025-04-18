@@ -14,19 +14,6 @@ const Rent = ({ product }) => {
     paymentMethod: "",
     transactionId: "",
   });
-  function loadScript(src) {
-    return new Promise((resolve) => {
-      const script = document.createElement("script");
-      script.src = src;
-      script.onload = () => {
-        resolve(true);
-      };
-      script.onerror = () => {
-        resolve(false);
-      };
-      document.body.appendChild(script);
-    });
-  }
   useEffect(() => {
     if (formData.startDate && formData.endDate) {
       const startDate = new Date(formData.startDate);
@@ -43,21 +30,12 @@ const Rent = ({ product }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await loadScript(
-      "https://checkout.razorpay.com/v1/checkout.js"
-    );
-    console.log("razorpay", res);
-    if (!res) {
-      toast.error("Razorpay SDK failed to load. Are you online?");
-      return;
-    }
     try {
       const response = axios.post(
         "http://localhost:5000/api/booking/addBooking",
         formData
       );
 
-      document.getElementById("payment").close();
       document.getElementById("rentProduct").close();
       toast.promise(response, {
         loading: "Renting product...",
@@ -70,7 +48,9 @@ const Rent = ({ product }) => {
             description: "Test Transaction",
             image: "/bg.png",
             order_id: data.data.orderId,
-            handler: toast.success("Payment successful!"),
+            handler: () => {
+              toast.success("Payment successful!");
+            },
             prefill: {
               name: user?.name,
               email: user?.email,

@@ -68,6 +68,7 @@ app.post("/addBooking", async (req, res) => {
       endDate: formData.endDate,
       totalPrice: formData.totalPrice,
       paymentId: payment._id,
+      status: "completed",
     });
 
     await newBooking.save();

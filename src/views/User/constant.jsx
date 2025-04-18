@@ -2,13 +2,9 @@ import React from "react";
 import {
   IconHome,
   IconPackage,
-  IconShoppingCart,
   IconClipboardCheck,
   IconUser,
-  IconSettings,
-  IconHelpCircle,
   IconBuilding,
-  IconCreditCard,
 } from "@tabler/icons-react";
 
 export const SIDENAV_ITEMS = [

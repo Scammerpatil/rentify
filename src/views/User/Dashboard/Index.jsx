@@ -55,16 +55,6 @@ const Component = () => {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="flex justify-center mt-8 space-x-4">
-        <Link to="/add-product" className="btn btn-primary px-6">
-          + Add Product
-        </Link>
-        <Link to="/my-rentals" className="btn btn-secondary px-6">
-          View My Rentals
-        </Link>
-      </div>
-
       {/* Recent Bookings */}
       <div className="bg-base-200 p-6 rounded-lg shadow-lg mt-8">
         <h2 className="text-2xl font-semibold mb-4">📌 Recent Bookings</h2>
