@@ -10,7 +10,7 @@ export default function Home() {
   const [listings, setListings] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/product/")
+    fetch("http://localhost:5000/api/product/getAllProducts")
       .then((res) => res.json())
       .then((data) => setListings(data))
       .catch((err) => console.error("Error fetching listings:", err));
@@ -61,7 +61,7 @@ export default function Home() {
                     <div className="flex items-center justify-between mt-3 text-base-content">
                       <div className="flex items-center space-x-1">
                         <IconLocation size={20} />
-                        <span>{item.location.slice(0, 10)}...</span>
+                        <span>{item.address?.slice(0, 10)}...</span>
                       </div>
                       <div className="flex items-center space-x-1">
                         <IconCalendar size={20} />

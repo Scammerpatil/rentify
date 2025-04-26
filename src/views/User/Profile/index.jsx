@@ -37,7 +37,7 @@ const Component = () => {
   if (!user) return <div className="text-center py-10">Loading...</div>;
 
   return (
-    <div className="px-10 py-8">
+    <>
       {/* User Info */}
       <div className="bg-base-200 p-6 rounded-lg shadow-lg text-center flex flex-col items-center space-y-3">
         <img
@@ -51,10 +51,25 @@ const Component = () => {
         <p className="text-base-content/70">
           {user.address || "Address not available"}
         </p>
+        <p className="text-base-content/70">{user.aadharCard}</p>
+        <a className="text-base-content/70" href={user.aadharCardImage}>
+          <img
+            src={user.aadharCardImage || "/Images/placeholder.png"}
+            alt="Aadhar Card"
+            className="h-24 w-24 rounded-full mx-auto border-4 border-primary object-cover"
+          />
+        </a>
+        <div className="flex items-center space-x-2 mt-3">
+          <a href={`mailto:${user.email}`} className="btn btn-primary btn-sm">
+            Contact
+          </a>
+        </div>
       </div>
 
       {/* User's Listings */}
-      <h2 className="text-2xl font-semibold mt-8">Listings by {user.name}</h2>
+      <h2 className="text-2xl font-semibold mt-8 text-center">
+        Listings by {user.name}
+      </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-4">
         {listings.length > 0 ? (
           listings.map((item) => (
@@ -110,6 +125,6 @@ const Component = () => {
           </p>
         )}
       </div>
-    </div>
+    </>
   );
 };

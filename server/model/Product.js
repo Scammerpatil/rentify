@@ -16,7 +16,6 @@ const ProductSchema = new mongoose.Schema(
       enum: [
         "car",
         "bike",
-        "clothes",
         "room",
         "toys",
         "camera",

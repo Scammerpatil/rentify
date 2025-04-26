@@ -34,18 +34,6 @@ const Header = () => {
         </Link>
       </div>
 
-      {/* Menu for larger screens */}
-      <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1 text-lg">
-          <li>
-            <Link to="/about">ABOUT</Link>
-          </li>
-          <li>
-            <Link to="/about">CONTACT US</Link>
-          </li>
-        </ul>
-      </div>
-
       {/* Navbar End - Menu for smaller screens */}
       <div className="navbar-end px-4">
         <div className="gap-5 pr-16 lg:pr-0 hidden lg:flex lg:items-center justify-end">

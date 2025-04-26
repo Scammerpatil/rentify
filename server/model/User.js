@@ -23,6 +23,14 @@ const UserSchema = new mongoose.Schema(
     address: {
       type: String,
     },
+    aadharCard: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    aadharCardImage: {
+      type: String,
+    },
     profileImage: {
       type: String,
     },

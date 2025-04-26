@@ -9,6 +9,16 @@ const app = express();
 dotenv.config();
 app.use(bodyParser.json());
 
+app.get("/getAllProducts", async (req, res) => {
+  try {
+    const products = await Product.find({}).populate("owner");
+    res.status(200).json(products);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+});
+
 // Get products by category
 app.get("/category/:category", async (req, res) => {
   try {

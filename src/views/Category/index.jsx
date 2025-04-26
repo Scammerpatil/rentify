@@ -62,7 +62,7 @@ const Category = () => {
                 <div className="flex items-center justify-between mt-3 text-base-content">
                   <div className="flex items-center space-x-1">
                     <IconLocation size={20} />
-                    <span>{item.location.slice(0, 10)}...</span>
+                    <span>{item.address.slice(0, 10)}...</span>
                   </div>
                   <div className="flex items-center space-x-1">
                     <IconCalendar size={20} />

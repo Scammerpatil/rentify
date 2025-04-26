@@ -3,13 +3,11 @@ import { Link } from "react-router-dom";
 
 const Categories = () => {
   const categories = [
-    { name: "Computers", image: "/Images/Computer.png" },
+    { name: "Laptop", image: "/Images/Computer.png" },
     { name: "Smartphones", image: "/Images/SmartPhone.png" },
     { name: "Car", image: "/Images/car.png" },
     { name: "Cameras", image: "/Images/Camera.png" },
-    { name: "Audio", image: "/Images/headphone.png" },
-    { name: "Television", image: "/Images/TV.png" },
-    { name: "Bicycles", image: "/Images/Bicycle.png" },
+    { name: "Bike", image: "/Images/Bicycle.png" },
     { name: "Furniture", image: "/Images/Furniture.png" },
     { name: "Camping Gear", image: "/Images/Camping.png" },
     { name: "Gaming Consoles", image: "/Images/Gaming.png" },

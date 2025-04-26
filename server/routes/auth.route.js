@@ -8,15 +8,25 @@ const app = express.Router();
 dotenv.config();
 // Sign up route
 app.post("/signup", async (req, res) => {
-  const { name, email, password, address, phoneNumber, profilePhoto } =
-    req.body;
+  const {
+    name,
+    email,
+    password,
+    address,
+    phoneNumber,
+    profilePhoto,
+    aadharCard,
+    aadharCardImage,
+  } = req.body;
   if (
     !name ||
     !email ||
     !password ||
     !address ||
     !phoneNumber ||
-    !profilePhoto
+    !profilePhoto ||
+    !aadharCard ||
+    !aadharCardImage
   ) {
     return res.status(400).json({ message: "All fields are required" });
   }
@@ -36,6 +46,8 @@ app.post("/signup", async (req, res) => {
       address,
       phone: phoneNumber,
       profileImage: profilePhoto,
+      aadharCard: aadharCard,
+      aadharCardImage: aadharCardImage,
     });
     await newUser.save();
     res.status(201).json({ message: "User created successfully" });
@@ -84,7 +96,7 @@ app.post("/login", async (req, res) => {
 app.get("/verifyToken", async (req, res) => {
   const token = req.cookies.token;
   if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
+    return res.status(203).json({ message: "Unauthorized" });
   }
   try {
     const data = jwt.verify(token, process.env.JWT_SECRET);

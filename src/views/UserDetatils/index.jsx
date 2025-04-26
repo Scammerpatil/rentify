@@ -27,7 +27,7 @@ const UserDetails = () => {
   if (!user) return <div className="text-center py-10">Loading...</div>;
 
   return (
-    <div className="px-10 py-8">
+    <>
       {/* User Info */}
       <div className="bg-base-200 p-6 rounded-lg shadow-lg text-center flex flex-col items-center space-y-3">
         <img
@@ -41,6 +41,19 @@ const UserDetails = () => {
         <p className="text-base-content/70">
           {user.address || "Address not available"}
         </p>
+        <p className="text-base-content/70">{user.aadharCard}</p>
+        <a className="text-base-content/70" href={user.aadharCardImage}>
+          <img
+            src={user.aadharCardImage || "/Images/placeholder.png"}
+            alt="Aadhar Card"
+            className="h-24 w-24 rounded-full mx-auto border-4 border-primary object-cover"
+          />
+        </a>
+        <div className="flex items-center space-x-2 mt-3">
+          <a href={`mailto:${user.email}`} className="btn btn-primary btn-sm">
+            Contact
+          </a>
+        </div>
       </div>
 
       {/* User's Listings */}
@@ -116,7 +129,7 @@ const UserDetails = () => {
           </p>
         )}
       </div>
-    </div>
+    </>
   );
 };
 

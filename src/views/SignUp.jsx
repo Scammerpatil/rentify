@@ -12,6 +12,8 @@ function RegistrationForm() {
     password: "",
     address: "",
     phoneNumber: "",
+    aadharCard: "",
+    aadharCardImage: "",
   });
   const [errors, setErrors] = useState({});
   const router = useNavigate();
@@ -55,11 +57,21 @@ function RegistrationForm() {
       newErrors.phoneNumber = "Enter a valid phone number.";
     }
 
+    if (!formData.aadharCard.trim()) {
+      newErrors.aadharCard = "Aadhar Card Number is required.";
+    }
+    if (!/^\d{12}$/.test(formData.aadharCard)) {
+      newErrors.aadharCard = "Aadhar Card Number must be 12 digits.";
+    }
+    if (!formData.aadharCardImage) {
+      newErrors.aadharCardImage = "Aadhar Card Image is required.";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleUploadImage = (e) => {
+  const handleUploadImage = (e, folderName, path) => {
     if (!formData.name) {
       toast.error("Name is required for images");
       return;
@@ -74,7 +86,7 @@ function RegistrationForm() {
       const form = new FormData();
       form.append("file", file);
       form.append("name", formData.name.split(" ").join("_"));
-      form.append("folderName", "profileImages");
+      form.append("folderName", folderName);
       const imageResponse = axios.post(
         "http://localhost:5000/api/helper/upload-image",
         form,
@@ -90,7 +102,7 @@ function RegistrationForm() {
           console.log(data.data);
           setFormData({
             ...formData,
-            profilePhoto: data.data.filePath,
+            [path]: data.data.filePath,
           });
           return "Image Uploaded Successfully";
         },
@@ -192,7 +204,7 @@ function RegistrationForm() {
               name="profilePhoto"
               accept="image/*"
               onChange={(e) => {
-                handleUploadImage(e);
+                handleUploadImage(e, "profileImages", "profilePhoto");
               }}
               disabled={!formData.name}
               className="file-input file-input-bordered file-input-primary w-full"
@@ -208,9 +220,11 @@ function RegistrationForm() {
               <span className="label-text">Phone Number</span>
             </label>
             <input
-              type="number"
+              type="text"
               id="phoneNumber"
               name="phoneNumber"
+              pattern="\+?\d{10}"
+              maxLength={10}
               value={formData.phoneNumber}
               onChange={handleChange}
               className={`input input-bordered w-full ${
@@ -220,6 +234,50 @@ function RegistrationForm() {
             {errors.phoneNumber && (
               <p className="text-red-600 text-sm">{errors.phoneNumber}</p>
             )}
+          </div>
+
+          <div className="form-control">
+            <label
+              htmlFor="aadharCard"
+              className="label text-sm font-medium text-gray-700"
+            >
+              <span className="label-text">Aadhar Card Number</span>
+            </label>
+            <input
+              type="text"
+              id="aadharCard"
+              name="aadharCard"
+              pattern="\d{12}"
+              maxLength={12}
+              value={formData.aadharCard}
+              onChange={handleChange}
+              className={`input input-bordered w-full ${
+                errors.aadharCard ? "input-error" : ""
+              }`}
+            />
+            {errors.aadharCard && (
+              <p className="text-red-600 text-sm">{errors.aadharCard}</p>
+            )}
+          </div>
+
+          <div className="form-control">
+            <label
+              htmlFor="aadharCardImage"
+              className="label text-sm font-medium text-gray-700"
+            >
+              <span className="label-text">Aadhar Card Image</span>
+            </label>
+            <input
+              type="file"
+              id="aadharCardImage"
+              name="aadharCardImage"
+              accept="image/*"
+              className="file-input file-input-bordered file-input-primary w-full"
+              disabled={!formData.name}
+              onChange={(e) => {
+                handleUploadImage(e, "aadharCardImage", "aadharCardImage");
+              }}
+            />
           </div>
 
           {/* Address */}

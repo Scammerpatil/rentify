@@ -168,6 +168,7 @@ const Component = () => {
                   <th>Start Date</th>
                   <th>End Date</th>
                   <th>Total Price</th>
+                  <th>View User</th>
                 </tr>
               </thead>
               <tbody>
@@ -178,6 +179,16 @@ const Component = () => {
                     <td>{new Date(booking.startDate).toLocaleDateString()}</td>
                     <td>{new Date(booking.endDate).toLocaleDateString()}</td>
                     <td>₹{booking.totalPrice}</td>
+                    <td>
+                      <button
+                        className="btn btn-secondary btn-sm"
+                        onClick={() =>
+                          window.open(`/user/${booking.renter._id}`, "_blank")
+                        }
+                      >
+                        View User
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
