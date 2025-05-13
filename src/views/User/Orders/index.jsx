@@ -35,7 +35,7 @@ const Component = () => {
       }
     };
     fetchBookings();
-  }, []);
+  }, [user._id]);
 
   const handleReportSubmit = async () => {
     if (!reportText.trim()) return alert("Report cannot be empty");

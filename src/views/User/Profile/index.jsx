@@ -1,7 +1,6 @@
 import axios from "axios";
 import Layout from "../Layout";
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
 import { IconCalendar, IconLocation } from "@tabler/icons-react";
 import { useUser } from "../../../context/UserContext";
 

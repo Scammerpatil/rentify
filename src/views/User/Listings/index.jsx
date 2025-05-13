@@ -1,8 +1,16 @@
-import { IconCalendar, IconLocation, IconSearch } from "@tabler/icons-react";
+import {
+  IconCalendar,
+  IconHeart,
+  IconLocation,
+  IconSearch,
+} from "@tabler/icons-react";
 import Layout from "../Layout";
+import haversine from "haversine-distance";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { useUser } from "../../../context/UserContext";
+import toast from "react-hot-toast";
 
 const Listings = () => {
   return (
@@ -14,23 +22,8 @@ const Listings = () => {
 
 export default Listings;
 
-const haversineDistance = (coords1, coords2) => {
-  console.log("Calculating distance between:", coords1, coords2);
-  const toRad = (value) => (value * Math.PI) / 180;
-  const [lon1, lat1] = coords1;
-  const [lon2, lat2] = coords2;
-
-  const R = 6371;
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
-
-  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))); // in KM
-};
-
 const Component = () => {
+  const { user } = useUser();
   const [listings, setListings] = useState([]);
   const [filteredListings, setFilteredListings] = useState([]);
   const [userCoords, setUserCoords] = useState(null);
@@ -67,7 +60,6 @@ const Component = () => {
     "bicycles",
     "other",
   ];
-
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -79,23 +71,36 @@ const Component = () => {
     );
   }, []);
 
+  const fetchListings = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/product/", {
+        withCredentials: true,
+      });
+      const data = res.data;
+      setListings(res.data);
+    } catch (err) {
+      console.error("Error fetching listings:", err);
+    }
+  };
   useEffect(() => {
-    const fetchListings = async () => {
-      try {
-        const res = await axios.get("http://localhost:5000/api/product/", {
-          withCredentials: true,
-        });
-        setListings(res.data);
-      } catch (err) {
-        console.error("Error fetching listings:", err);
-      }
-    };
     fetchListings();
   }, []);
 
   useEffect(() => {
     let filtered = listings;
-
+    if (user) {
+      filtered = listings.sort((a, b) => {
+        if (user.wishlist?.includes(a._id) && !user.wishlist?.includes(b._id)) {
+          return -1;
+        } else if (
+          !user.wishlist?.includes(a._id) &&
+          user.wishlist?.includes(b._id)
+        ) {
+          return 1;
+        }
+        return 0;
+      });
+    }
     if (category && category !== "All") {
       filtered = filtered.filter((item) => item.category === category);
     }
@@ -107,28 +112,50 @@ const Component = () => {
     }
 
     if (userCoords && distanceRange) {
+      console.log("User Coordinates:", userCoords);
+      console.log(
+        "Item Coordinates:",
+        filtered.map((item) => item.location.coordinates)
+      );
       filtered = filtered
         .map((item) => {
-          const distance = haversineDistance(
-            userCoords,
-            item.location.coordinates
-          );
+          const distance = haversine(userCoords, item.location.coordinates);
           return { ...item, distance };
         })
         .filter((item) => item.distance <= parseFloat(distanceRange))
         .sort((a, b) => a.distance - b.distance);
     } else if (userCoords) {
       filtered = filtered.map((item) => {
-        const distance = haversineDistance(
-          userCoords,
-          item.location.coordinates
-        );
+        const distance = haversine(userCoords, item.location.coordinates);
         return { ...item, distance };
       });
     }
 
     setFilteredListings(filtered);
   }, [listings, search, category, userCoords, distanceRange]);
+
+  const handleWishlist = async (itemId, action) => {
+    try {
+      const res = axios.post(
+        `http://localhost:5000/api/user/wishlist/${action}`,
+        { itemId },
+        { withCredentials: true }
+      );
+      toast.promise(res, {
+        loading: "Updating wishlist...",
+        success: (res) => {
+          return res.data.message;
+        },
+        error: (err) => {
+          console.error("Error updating wishlist:", err);
+          return "Error updating wishlist";
+        },
+      });
+    } catch (err) {
+      console.error("Error updating wishlist:", err);
+      toast.error("Error updating wishlist");
+    }
+  };
 
   return (
     <>
@@ -185,83 +212,113 @@ const Component = () => {
           filteredListings.map((item) => (
             <div
               key={item._id}
-              className="card bg-base-300 shadow-lg hover:shadow-2xl transition p-4 rounded-xl border border-base-300"
+              className="relative card bg-base-300 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-4 rounded-xl border border-base-300 group"
             >
-              <div className="relative h-48 w-full">
+              {/* Wishlist Button */}
+              <button
+                className={`absolute top-2 right-2 z-10 btn btn-error btn-circle btn-sm ${
+                  user.wishlist?.includes(item._id)
+                    ? "btn-active text-error-content"
+                    : "btn-outline"
+                }`}
+                onClick={() => {
+                  if (user.wishlist?.includes(item._id)) {
+                    handleWishlist(item._id, "remove");
+                  } else {
+                    handleWishlist(item._id, "add");
+                  }
+                }}
+              >
+                <IconHeart
+                  size={20}
+                  className="text-error group-hover:scale-110 transition-transform"
+                />
+              </button>
+
+              {/* Product Image */}
+              <div className="relative h-48 w-full overflow-hidden rounded-lg">
                 <img
                   src={item.images || "/Images/placeholder.png"}
                   alt={item.title}
-                  className="h-full w-full object-cover rounded-md"
+                  className="h-full w-full object-cover rounded-lg group-hover:scale-105 transition duration-300"
                 />
-                <span className="absolute top-2 left-2 bg-primary text-xs text-primary-content px-2 py-1 rounded capitalize">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent rounded-lg" />
+                <span className="absolute top-2 left-2 bg-primary text-primary-content capitalize text-xs font-semibold px-3 py-1 rounded-full shadow">
                   {item.category}
                 </span>
-                <span className="absolute top-2 right-2 bg-secondary text-xs text-secondary-content px-2 py-1 rounded">
+                <span className="absolute bottom-2 left-2 bg-secondary text-secondary-content text-xs px-2 py-1 rounded shadow">
                   {item.certificate ? "Certified" : "Uncertified"}
                 </span>
               </div>
 
-              <div className="p-4">
-                <h3 className="text-lg font-semibold text-primary">
+              {/* Details Section */}
+              <div className="p-4 space-y-2">
+                <h3 className="text-lg font-semibold text-primary truncate">
                   {item.title}
                 </h3>
-                <p className="text-sm text-base-content/80">
+                <p className="text-sm text-base-content/80 line-clamp-2">
                   {item.description.slice(0, 60)}...
                 </p>
 
-                <div className="flex items-center justify-between mt-2">
+                <div className="flex items-center justify-between">
                   <p className="text-xl font-bold text-secondary">
-                    ₹ {item.pricePerDay}/day
+                    ₹{item.pricePerDay}/day
                   </p>
-                  {item.availability ? (
-                    <span className="badge badge-success">Available</span>
-                  ) : (
-                    <span className="badge badge-error">Not Available</span>
-                  )}
+                  <span
+                    className={`badge ${
+                      item.availability ? "badge-success" : "badge-error"
+                    }`}
+                  >
+                    {item.availability ? "Available" : "Not Available"}
+                  </span>
                 </div>
 
-                <div className="flex items-center justify-between mt-3 text-base-content">
-                  <div className="flex items-center space-x-1">
-                    <IconLocation size={20} />
-                    <span>{item.address?.slice(0, 10)}...</span>
+                {/* Location & Date */}
+                <div className="flex justify-between text-sm text-base-content/70">
+                  <div className="flex items-center gap-1">
+                    <IconLocation size={18} />
+                    <span>{item.address?.slice(0, 12)}...</span>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <IconCalendar size={20} />
+                  <div className="flex items-center gap-1">
+                    <IconCalendar size={18} />
                     <span>{item.availableFrom || "Notify You"}</span>
                   </div>
                 </div>
 
-                <div className="text-sm mt-2 text-info font-medium">
-                  📍 {item.distance?.toFixed(2)} KM away
-                </div>
+                {/* Distance */}
+                {item.distance && (
+                  <div className="text-sm text-info font-medium mt-1">
+                    📍 {item.distance.toFixed(2)} KM away
+                  </div>
+                )}
               </div>
 
-              <div className="p-3 bg-base-200 rounded-md">
+              {/* Owner Info */}
+              <div className="flex items-center gap-3 p-3 bg-base-200 rounded-md mt-2">
+                <img
+                  src={item.owner?.profileImage || "/Images/placeholder.png"}
+                  alt="Owner"
+                  className="h-10 w-10 rounded-full border-2 border-primary object-cover"
+                />
                 <Link
                   to={`/user/${item.owner?._id}`}
-                  className="flex items-center space-x-3"
+                  className="font-medium hover:text-primary"
                 >
-                  <img
-                    src={item.owner?.profileImage || "/Images/placeholder.png"}
-                    alt="Owner"
-                    className="avatar h-10 w-10 rounded-full border-2 border-primary object-cover"
-                  />
-                  <span className="font-medium text-base-content">
-                    {item.owner?.name}
-                  </span>
+                  {item.owner?.name}
                 </Link>
               </div>
 
-              <div className="p-3 flex justify-between">
+              {/* Action Buttons */}
+              <div className="flex gap-3 p-3 pt-2">
                 <Link
                   to={item.availability ? `/product/${item._id}` : "#"}
-                  className="btn btn-primary w-1/2 mr-2 text-base"
+                  className="btn btn-primary btn-sm w-1/2"
                 >
                   Rent
                 </Link>
                 <Link
                   to={`/product/${item._id}`}
-                  className="btn btn-secondary w-1/2 text-base"
+                  className="btn btn-secondary btn-sm w-1/2"
                 >
                   Details
                 </Link>

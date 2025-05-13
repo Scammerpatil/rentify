@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Layout from "../Layout";
-import { Link } from "react-router-dom";
 import { useUser } from "../../../context/UserContext";
 
 const Dashboard = () => {
@@ -19,19 +18,18 @@ const Component = () => {
   const [data, setData] = useState({ listings: [], bookings: [] });
 
   useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:5000/api/user/dashboard/${user._id}`
+        );
+        setData(response.data);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      }
+    };
     fetchDashboardData();
   }, []);
-
-  const fetchDashboardData = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/api/user/dashboard/${user._id}`
-      );
-      setData(response.data);
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-    }
-  };
 
   return (
     <>
@@ -64,7 +62,7 @@ const Component = () => {
               <thead>
                 <tr>
                   <th>Product</th>
-                  <th>Renter</th>
+                  <th>Owner</th>
                   <th>Start Date</th>
                   <th>End Date</th>
                   <th>Total Price</th>
@@ -74,7 +72,7 @@ const Component = () => {
                 {data.bookings.slice(0, 5).map((booking) => (
                   <tr key={booking._id}>
                     <td>{booking.listing.title}</td>
-                    <td>{booking.renter.name}</td>
+                    <td>{booking.listing.owner.name}</td>
                     <td>{new Date(booking.startDate).toLocaleDateString()}</td>
                     <td>{new Date(booking.endDate).toLocaleDateString()}</td>
                     <td>₹{booking.totalPrice}</td>

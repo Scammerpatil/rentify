@@ -35,7 +35,7 @@ export default function Login() {
   };
 
   return (
-    <>
+    <div className="bg-base-200 min-h-screen flex flex-col items-center justify-center">
       <Header />
       <div className="bg-base-300 p-8 rounded-lg shadow-md w-full max-w-md mx-auto mt-10 border border-base-content">
         <h2 className="text-2xl font-bold mb-6 text-center text-base-content">
@@ -96,6 +96,6 @@ export default function Login() {
           </span>
         </form>
       </div>
-    </>
+    </div>
   );
 }

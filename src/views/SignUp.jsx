@@ -137,13 +137,14 @@ function RegistrationForm() {
   };
 
   return (
-    <>
+    <div className="bg-base-200 min-h-screen flex flex-col items-center justify-center p-24">
       <Header />
-      <div className="bg-base-300 p-8 rounded-lg shadow-md w-full max-w-md mx-auto mt-10 border border-base-content">
+      <div className="bg-base-300 p-8 rounded-lg shadow-md w-full max-w-4xl mx-auto mt-10 border border-base-content">
         <h2 className="text-2xl font-bold mb-6 text-center text-base-content">
           Hello there! Welcome to Rentify
         </h2>
-        <div className="space-y-4">
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Full Name */}
           <div className="form-control">
             <label
@@ -171,7 +172,7 @@ function RegistrationForm() {
           <div className="form-control">
             <label
               htmlFor="email"
-              className="label text-sm font-medium text-gray-700"
+              className="label text-sm font-medium text-base-content"
             >
               <span className="label-text">Email</span>
             </label>
@@ -190,7 +191,7 @@ function RegistrationForm() {
             )}
           </div>
 
-          {/* Profile photo */}
+          {/* Profile Photo */}
           <div className="form-control">
             <label
               htmlFor="profilePhoto"
@@ -203,9 +204,9 @@ function RegistrationForm() {
               id="profilePhoto"
               name="profilePhoto"
               accept="image/*"
-              onChange={(e) => {
-                handleUploadImage(e, "profileImages", "profilePhoto");
-              }}
+              onChange={(e) =>
+                handleUploadImage(e, "profileImages", "profilePhoto")
+              }
               disabled={!formData.name}
               className="file-input file-input-bordered file-input-primary w-full"
             />
@@ -215,7 +216,7 @@ function RegistrationForm() {
           <div className="form-control">
             <label
               htmlFor="phoneNumber"
-              className="label text-sm font-medium text-gray-700"
+              className="label text-sm font-medium text-base-content"
             >
               <span className="label-text">Phone Number</span>
             </label>
@@ -236,10 +237,11 @@ function RegistrationForm() {
             )}
           </div>
 
+          {/* Aadhar Card Number */}
           <div className="form-control">
             <label
               htmlFor="aadharCard"
-              className="label text-sm font-medium text-gray-700"
+              className="label text-sm font-medium text-base-content"
             >
               <span className="label-text">Aadhar Card Number</span>
             </label>
@@ -260,10 +262,11 @@ function RegistrationForm() {
             )}
           </div>
 
+          {/* Aadhar Card Image */}
           <div className="form-control">
             <label
               htmlFor="aadharCardImage"
-              className="label text-sm font-medium text-gray-700"
+              className="label text-sm font-medium text-base-content"
             >
               <span className="label-text">Aadhar Card Image</span>
             </label>
@@ -274,17 +277,17 @@ function RegistrationForm() {
               accept="image/*"
               className="file-input file-input-bordered file-input-primary w-full"
               disabled={!formData.name}
-              onChange={(e) => {
-                handleUploadImage(e, "aadharCardImage", "aadharCardImage");
-              }}
+              onChange={(e) =>
+                handleUploadImage(e, "aadharCardImage", "aadharCardImage")
+              }
             />
           </div>
 
           {/* Address */}
-          <div className="form-control">
+          <div className="form-control md:col-span-2">
             <label
               htmlFor="address"
-              className="label text-sm font-medium text-gray-700"
+              className="label text-sm font-medium text-base-content"
             >
               <span className="label-text">Address</span>
             </label>
@@ -304,10 +307,10 @@ function RegistrationForm() {
           </div>
 
           {/* Password */}
-          <div className="form-control">
+          <div className="form-control md:col-span-2">
             <label
               htmlFor="password"
-              className="label text-sm font-medium text-gray-700"
+              className="label text-sm font-medium text-base-content"
             >
               <span className="label-text">Password</span>
             </label>
@@ -325,23 +328,25 @@ function RegistrationForm() {
               <p className="text-red-600 text-sm">{errors.password}</p>
             )}
           </div>
+        </div>
 
-          {/* Submit Button */}
-          <button className={`btn btn-primary w-full`} onClick={handleSubmit}>
+        {/* Submit Button */}
+        <div className="mt-6">
+          <button className="btn btn-primary w-full" onClick={handleSubmit}>
             Register
           </button>
 
-          <span className="font-normal transition duration-300 flex flex-col items-center justify-center">
+          <div className="text-center mt-4">
             <p className="text-sm">
-              Already have an account?
-              <Link to="/login" className="text-primary">
+              Already have an account?{" "}
+              <Link to="/login" className="text-primary hover:underline">
                 Login
               </Link>
             </p>
-          </span>
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

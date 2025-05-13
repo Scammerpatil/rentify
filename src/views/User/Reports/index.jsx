@@ -17,10 +17,6 @@ const Component = () => {
   const [reports, setReports] = useState([]);
   const [feedbackInput, setFeedbackInput] = useState({});
 
-  useEffect(() => {
-    if (user?._id) getReports();
-  }, [user]);
-
   const getReports = async () => {
     try {
       const response = await axios.get(
@@ -31,6 +27,9 @@ const Component = () => {
       console.error("Error fetching reports:", error);
     }
   };
+  useEffect(() => {
+    if (user?._id) getReports();
+  }, [user]);
 
   const handleFeedbackSubmit = async (reportId) => {
     if (!feedbackInput[reportId]) return;

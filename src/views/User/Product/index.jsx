@@ -26,20 +26,19 @@ const Component = ({ productId }) => {
   const [newRating, setNewRating] = useState({ review: "", rating: 5 });
 
   useEffect(() => {
+    const getProduct = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:5000/api/product/${productId}`
+        );
+        setProduct(response.data);
+        setReviews(response.data.reviews || []);
+      } catch (error) {
+        console.error("Error fetching product:", error);
+      }
+    };
     getProduct();
   }, []);
-
-  const getProduct = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/api/product/${productId}`
-      );
-      setProduct(response.data);
-      setReviews(response.data.reviews || []);
-    } catch (error) {
-      console.error("Error fetching product:", error);
-    }
-  };
 
   const handleAddRating = async () => {
     try {
@@ -148,8 +147,11 @@ const Component = ({ productId }) => {
         ) : (
           <ul className="space-y-2">
             {reviews.map((r) => (
-              <div className="flex justify-between items-center" key={r._id}>
-                <div className="chat chat-start">
+              <div
+                className="flex justify-between items-center w-full"
+                key={r._id}
+              >
+                <div className="chat chat-start w-full">
                   <div className="chat-image avatar">
                     <div className="w-10 rounded-full">
                       <img
@@ -159,8 +161,8 @@ const Component = ({ productId }) => {
                     </div>
                   </div>
                   <div className="chat-bubble">
-                    <p className="text-lg font-bold">{r.user.name}</p>
-                    <p className="text-base-content/70">{r.review}</p>
+                    <p className="text-sm">{r.user.name}</p>
+                    <p className="font-bold">{r.review}</p>
                   </div>
                 </div>
                 <div className="rating rating-md">
@@ -225,6 +227,11 @@ const Component = ({ productId }) => {
               By renting this product, you agree to take full responsibility in
               case of any damage. A potential damage fee will be charged based
               on the owner's evaluation.
+              <br />
+              <br />
+              <Link to="/user/terms" className="text-primary" target="_blank">
+                Read the full terms and conditions
+              </Link>
             </p>
             <div className="modal-action">
               <button

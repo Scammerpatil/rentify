@@ -39,11 +39,9 @@ const Layout = ({ children }) => {
                   <span className="text-sm">
                     <IconChevronRight />
                   </span>
-                  <Link to={`/${pathSegments.slice(0, index + 1).join("/")}`}>
-                    <span className="text-base capitalize hover:text-primary transition">
-                      {segment.replace(/-/g, " ")}
-                    </span>
-                  </Link>
+                  <span className="text-base capitalize hover:text-primary transition">
+                    {segment.replace(/-/g, " ")}
+                  </span>
                 </React.Fragment>
               ))}
             </div>

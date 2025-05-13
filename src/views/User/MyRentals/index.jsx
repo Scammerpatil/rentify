@@ -22,10 +22,6 @@ const Component = () => {
   const [editData, setEditData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  useEffect(() => {
-    getMyRentals();
-  }, []);
-
   const getMyRentals = async () => {
     try {
       const response = await axios.get(
@@ -37,6 +33,9 @@ const Component = () => {
       console.error("Error fetching rentals:", error);
     }
   };
+  useEffect(() => {
+    getMyRentals();
+  }, []);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this listing?"))

@@ -3,7 +3,7 @@ import ThemeToggler from "./ThemeToggler";
 import { IconMoneybag } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 
-const Header = () => {
+const Header = (props) => {
   // State to toggle the menu on smaller screens
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -13,16 +13,17 @@ const Header = () => {
   };
 
   return (
-    <nav className="navbar px-10">
+    <nav className={`absolute top-0 left-0 z-40 navbar glass`}>
+      {/* Logo */}
       <div className="navbar-start">
         <Link
           to="/"
-          className="w-72 flex flex-row items-center justify-center gap-3 py-5 lg:py-2"
+          className={`w-72 flex flex-row items-center justify-center gap-3 py-5 lg:py-2 ${props.text}`}
         >
           <IconMoneybag size={50} className="text-primary" />
           <div className="flex flex-col items-start gap-1">
             <div className="flex items-baseline gap-[2px]">
-              <span className="text-primary font-extrabold text-xl">
+              <span className="text-secondary font-extrabold text-xl">
                 Rentify
               </span>
             </div>
@@ -34,89 +35,83 @@ const Header = () => {
         </Link>
       </div>
 
-      {/* Navbar End - Menu for smaller screens */}
-      <div className="navbar-end px-4">
-        <div className="gap-5 pr-16 lg:pr-0 hidden lg:flex lg:items-center justify-end">
-          <span className="flex gap-5">
-            <Link
-              to="/login"
-              className="px-7 py-3 text-accent-content bg-accent font-medium hover:opacity-70 rounded-lg"
-            >
-              Sign In
-            </Link>
-            <Link
-              to="/signup"
-              className="rounded-lg bg-primary px-7 py-3 font-medium text-primary-content shadow-btn transition duration-300 hover:bg-opacity-90 hover:shadow-btn-hover "
-            >
-              Sign Up
-            </Link>
-          </span>
-          <div>
-            <ThemeToggler />
-          </div>
-        </div>
-
-        {/* Hamburger Icon for smaller screens */}
-        <div className="lg:hidden flex items-center">
-          <button onClick={toggleMenu} className="text-2xl">
-            {/* Hamburger Icon (SVG) */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              className="h-8 w-8"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      {/* Dropdown Menu for smaller screens */}
-      <div
-        className={`lg:hidden ${
-          isMenuOpen ? "block" : "hidden"
-        } absolute top-20 right-0 w-full bg-base-200 p-4 shadow-lg z-50`}
-      >
-        <ul className="menu menu-vertical text-lg space-y-3">
+      {/* Desktop Nav */}
+      <div className="navbar-center hidden lg:flex">
+        <ul className="menu menu-horizontal px-1 text-base">
           <li>
-            <Link to="/about" onClick={toggleMenu}>
-              ABOUT
-            </Link>
+            <Link to="/about">About</Link>
           </li>
           <li>
-            <Link to="/about" onClick={toggleMenu}>
-              CONTACT US
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/login"
-              className="px-7 py-3 text-accent-content bg-accent font-medium hover:opacity-70 rounded-lg"
-              onClick={toggleMenu}
-            >
-              Sign In
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/signup"
-              className="rounded-lg bg-primary px-7 py-3 font-medium text-primary-content shadow-btn transition duration-300 hover:bg-opacity-90 hover:shadow-btn-hover "
-              onClick={toggleMenu}
-            >
-              Sign Up
-            </Link>
-          </li>
-          <li>
-            <ThemeToggler />
+            <Link to="/contact">Contact</Link>
           </li>
         </ul>
+      </div>
+
+      <div className="navbar-end hidden lg:flex">
+        <Link to="/login" className="btn btn-accent">
+          Sign In
+        </Link>
+        <Link to="/signup" className="btn btn-primary mx-2">
+          Sign Up
+        </Link>
+        <ThemeToggler />
+      </div>
+
+      {/* Mobile Menu Toggle */}
+      <div className="lg:hidden z-50">
+        <button onClick={toggleMenu}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-8 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+        </button>
+      </div>
+
+      {/* Mobile Dropdown */}
+      <div
+        className={`lg:hidden absolute top-full right-0 w-full bg-black/80 backdrop-blur-md px-6 py-4 space-y-4 z-40 transition-all duration-300 ${
+          isMenuOpen ? "block" : "hidden"
+        }`}
+      >
+        <Link
+          to="/about"
+          onClick={toggleMenu}
+          className="block text-white text-lg"
+        >
+          About Us
+        </Link>
+        <Link
+          to="/contact"
+          onClick={toggleMenu}
+          className="block text-white text-lg"
+        >
+          Contact Us
+        </Link>
+        <Link
+          to="/login"
+          onClick={toggleMenu}
+          className="block text-white bg-accent px-4 py-2 rounded"
+        >
+          Sign In
+        </Link>
+        <Link
+          to="/signup"
+          onClick={toggleMenu}
+          className="block text-white bg-primary px-4 py-2 rounded"
+        >
+          Sign Up
+        </Link>
+        <ThemeToggler />
       </div>
     </nav>
   );

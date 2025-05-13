@@ -20,20 +20,19 @@ const Component = ({ userid }) => {
   const [listings, setListings] = useState([]);
 
   useEffect(() => {
+    const getUser = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:5000/api/user/${userid}`
+        );
+        setUser(response.data.user);
+        setListings(response.data.listing);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    };
     getUser();
   }, []);
-
-  const getUser = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/api/user/${userid}`
-      );
-      setUser(response.data.user);
-      setListings(response.data.listing);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-    }
-  };
 
   if (!user) return <div className="text-center py-10">Loading...</div>;
 

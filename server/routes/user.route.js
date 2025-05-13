@@ -18,7 +18,7 @@ app.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findById(id);
-    const listing = await Product.find({ owner: id });
+    const listing = await Product.find({ owner: id }).populate("owner");
     if (!user) {
       res.status(404).json("User not found");
     } else {
@@ -34,7 +34,14 @@ app.get("/dashboard/:userId", async (req, res) => {
     const { userId } = req.params;
     const user = await User.findById(userId);
     const listings = await Product.find({ owner: userId });
-    const bookings = await Booking.find({ renter: userId }).populate("listing");
+    const bookings = await Booking.find({ renter: userId })
+      .populate("listing")
+      .populate({
+        path: "listing",
+        populate: {
+          path: "owner",
+        },
+      });
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -108,6 +115,46 @@ app.put("/report/feedback", async (req, res) => {
     res.status(200).json({ message: "Feedback submitted successfully" });
   } catch (error) {
     console.error("Error submitting feedback:", error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+});
+
+app.post("/wishlist/:action", async (req, res) => {
+  try {
+    const { action } = req.params;
+    const token = req.cookies.token;
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded.id) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    if (action === "add") {
+      const productId = req.body.itemId;
+      if (!productId) {
+        return res.status(400).json({ message: "Product ID is required" });
+      }
+      user.wishlist.push(productId);
+      await user.save();
+      res.status(200).json({ message: "Product added to wishlist" });
+    } else if (action === "remove") {
+      const productId = req.body.itemId;
+      if (!productId) {
+        return res.status(400).json({ message: "Product ID is required" });
+      }
+      user.wishlist.pull(productId);
+      await user.save();
+      res.status(200).json({ message: "Product removed from wishlist" });
+    } else {
+      res.status(400).json({ message: "Invalid action" });
+    }
+  } catch (error) {
+    console.error("Error updating wishlist:", error);
     res.status(500).json({ message: "Something went wrong" });
   }
 });

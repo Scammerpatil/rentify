@@ -21,7 +21,7 @@ const Category = () => {
     getProduct();
   }, []);
   return (
-    <>
+    <div className="bg-base-200 min-h-screen flex flex-col items-center py-14">
       <Header />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-10 mt-10">
         {listings.length > 0 ? (
@@ -37,7 +37,7 @@ const Category = () => {
                   alt={item.title}
                   className="h-full w-full object-cover rounded-md"
                 />
-                <span className="absolute top-2 left-2 bg-primary text-base-content text-xs px-2 py-1 rounded">
+                <span className="absolute top-2 left-2 bg-primary text-primary-content text-xs px-2 py-1 rounded">
                   {item.category}
                 </span>
               </div>
@@ -111,7 +111,7 @@ const Category = () => {
           </p>
         )}
       </div>
-    </>
+    </div>
   );
 };
 export default Category;

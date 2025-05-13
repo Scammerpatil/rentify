@@ -1,9 +1,13 @@
 import express from "express";
 import Razorpay from "razorpay";
 import dotenv from "dotenv";
+import fs from "fs";
 import bodyParser from "body-parser";
 import Payment from "../model/Payment.js";
 import Booking from "../model/Booking.js";
+import Product from "../model/Product.js";
+import ejs from "ejs";
+import nodemailer from "nodemailer";
 
 const app = express();
 dotenv.config();
@@ -60,7 +64,21 @@ app.post("/addBooking", async (req, res) => {
     });
 
     await payment.save();
-
+    const listing = await Product.findById(formData.listing).populate("owner");
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
+    const emailData = {
+      ownerName: listing.owner.name,
+      renterName: formData.renterName,
+      productTitle: formData.productTitle,
+      startDate: formatDate(formData.startDate),
+      endDate: formatDate(formData.endDate),
+      totalPrice: formData.totalPrice,
+      status: "Confirmed",
+    };
+    const emailSubject = `Booking Confirmation for ${listing.title}`;
+    await sendEmail(listing.owner.email, emailSubject, emailData);
     const newBooking = new Booking({
       renter: formData.renter,
       listing: formData.listing,
@@ -104,5 +122,36 @@ app.get("/getBookings/:userId", async (req, res) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 });
+
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  auth: {
+    user: process.env.SMTP_EMAIL || "novacops.rcpit@gmail.com",
+    pass: process.env.SMTP_PASSWORD || "cvrwlvkrohgbqmse",
+  },
+});
+
+const sendEmail = async (email, subject, emailData) => {
+  const emailTemplate = fs.readFileSync("./utils/emailTemplate.ejs", "utf-8");
+  const mailOptions = {
+    from: "Rentify | No Reply <",
+    to: email,
+    subject: subject,
+    html: ejs.render(emailTemplate, { ...emailData }),
+  };
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("Email sent successfully");
+  } catch (error) {
+    console.error("Error sending email:", error);
+  }
+};
+
+const formatDate = (date) =>
+  new Date(date).toLocaleDateString("en-IN", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
 export default app;
